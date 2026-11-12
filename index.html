@@ -1,467 +1,360 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALUMAX JT - Control de Bodega</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- html2pdf.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <style>
-    /* Estilos específicos para la plantilla A4 perfecta */
-    #pdf-template {
-      width: 794px;
-      min-height: 1123px;
-      padding: 40px;
-      background: #ffffff;
-      color: #0f172a;
-      font-family: system-ui, -apple-system, sans-serif;
-      box-sizing: border-box;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALUMAX JT - Movimientos de Bodega</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--brand:#0284c7;--brand-d:#075985;--ok:#059669;--bad:#e11d48;--navy:#0f172a}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1220;--card:#111a2e;--ink:#e5edf8;--mut:#94a3b8;--line:#223049;--brand:#38bdf8;--brand-d:#7dd3fc}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:48px}
+header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20;box-shadow:0 2px 10px #0004}
+.bar{max-width:760px;margin:auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-weight:900;letter-spacing:.08em;font-size:20px;color:#38bdf8}.sub{font-size:12px;color:#94a3b8}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer;color:#fff;background:var(--brand);display:inline-flex;gap:8px;align-items:center;justify-content:center}
+.btn:hover{filter:brightness(1.08)}.btn:disabled{opacity:.55;cursor:wait}
+.btn.ok{background:var(--ok)}.btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line)}.btn.small{padding:6px 10px;font-size:12px}
+main{max-width:760px;margin:auto;padding:16px;display:grid;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 1px 3px #0001}
+h2{margin:0 0 12px;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);display:flex;justify-content:space-between;align-items:center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:520px){.sub{display:none}#btnPdf{white-space:nowrap;padding:10px 12px}.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.g2.keep{grid-template-columns:1fr 1fr}}
+label{display:block;font-size:12px;font-weight:600;color:var(--mut);margin-bottom:4px}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus,select:focus{outline:2px solid var(--brand);border-color:transparent}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.folio{background:linear-gradient(135deg,#0c4a6e,#0284c7);color:#fff;border-radius:12px;padding:10px 14px}
+.folio small{display:block;opacity:.8;font-size:11px;letter-spacing:.08em;text-transform:uppercase}.folio b{font-size:18px}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{padding:12px;border:0;background:var(--bg);color:var(--mut);font-weight:700;cursor:pointer}
+.seg button.on.in{background:var(--ok);color:#fff}.seg button.on.out{background:var(--brand);color:#fff}
+.combo{position:relative}
+.list{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;max-height:300px;overflow:auto;z-index:15;box-shadow:0 10px 30px #0004}
+.opt{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:baseline}
+.opt:last-child{border:0}.opt:hover,.opt.act{background:var(--bg)}
+.opt .c{font:700 11px ui-monospace,Menlo,monospace;color:var(--brand-d);background:#e0f2fe;border-radius:6px;padding:2px 6px;white-space:nowrap}
+@media(prefers-color-scheme:dark){.opt .c{background:#0c4a6e;color:#bae6fd}}
+.opt .p{margin-left:auto;font-size:12px;color:var(--mut);white-space:nowrap}
+.sel{margin-top:8px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px dashed var(--line);font-size:13px}
+.prices{display:flex;gap:14px;flex-wrap:wrap;color:var(--mut);margin-top:4px}.prices b{color:var(--ink)}
+.row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}.row .t{font-weight:600}.row .m{font-size:12px;color:var(--mut);margin-top:2px}
+.qty{font-weight:800;font-family:ui-monospace,Menlo,monospace;text-align:right;white-space:nowrap}
+.x{border:0;background:none;color:var(--bad);cursor:pointer;font-size:18px;padding:0 4px}
+.tot{display:flex;gap:16px;flex-wrap:wrap;justify-content:flex-end;padding-top:12px;border-top:2px solid var(--line);font-size:13px;color:var(--mut)}.tot b{color:var(--ink)}
+.badge{background:#e0f2fe;color:#075985;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:700;letter-spacing:0}
+.empty{color:var(--mut);text-align:center;padding:18px 0}
+.link{background:none;border:0;color:var(--brand);cursor:pointer;font-size:12px;padding:0}
+#login{max-width:380px;margin:12vh auto;padding:0 16px}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:8px}
+.hidden{display:none!important}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw}#toast.on{opacity:1}
+canvas{width:100%;height:112px;display:block;touch-action:none;cursor:crosshair}
+.sigbox{border:2px dashed var(--line);border-radius:12px;background:var(--bg)}
+/* PDF */
+#pdf-wrap{position:fixed;left:-99999px;top:0}
+#pdf{width:1123px;padding:34px 38px;background:#fff;color:#0f172a;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:11px}
+#pdf table{width:100%;border-collapse:collapse}
+#pdf th{background:#0f172a;color:#fff;text-transform:uppercase;font-size:9.5px;letter-spacing:.05em;padding:8px 7px;text-align:left}
+#pdf td{padding:7px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+#pdf tr{page-break-inside:avoid}#pdf .r{text-align:right}#pdf .c{text-align:center}
+#pdf .m{font-family:ui-monospace,Menlo,monospace}
+</style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 pb-12">
+<body>
 
-  <!-- BARRA SUPERIOR MÓVIL -->
-  <header class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-md">
-    <div class="max-w-2xl mx-auto flex justify-between items-center">
-      <div>
-        <h1 class="font-black text-xl tracking-wider text-sky-400">ALUMAX JT</h1>
-        <p class="text-xs text-slate-400">Gestión de Envíos Colombia ➔ España</p>
-      </div>
-      <button onclick="generarPDF()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg flex items-center gap-2 text-sm transition">
-        <i class="fa-solid fa-file-pdf"></i>
-        <span>Descargar PDF</span>
-      </button>
-    </div>
-  </header>
-
-  <main class="max-w-2xl mx-auto p-4 space-y-6">
-
-    <!-- DATOS GENERALES -->
-    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
-      <h2 class="text-sm font-bold uppercase text-slate-500 tracking-wider flex items-center gap-2">
-        <i class="fa-solid fa-sliders text-sky-600"></i> Datos Operativos
-      </h2>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo Movimiento</label>
-          <select id="tipoMovimiento" onchange="actualizarVista()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2.5 font-bold focus:ring-2 focus:ring-sky-500">
-            <option value="ENTRADA (RECEPCIÓN)">ENTRADA (RECEPCIÓN)</option>
-            <option value="SALIDA (DESPACHO)">SALIDA (DESPACHO)</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">N° Folio / Guía</label>
-          <input type="text" id="numFolio" value="COL-MOV-2026-089" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2 font-mono">
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha Operación</label>
-          <input type="date" id="fechaOp" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Encargado (Colombia)</label>
-          <input type="text" id="operador" value="Carlos Mendoza" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2">
-        </div>
-      </div>
-    </section>
-
-    <!-- AGREGAR PRODUCTO -->
-    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
-      <h2 class="text-sm font-bold uppercase text-slate-500 tracking-wider flex items-center gap-2">
-        <i class="fa-solid fa-box-open text-sky-600"></i> Añadir Artículo
-      </h2>
-
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Código App Inventario</label>
-          <select id="selectSKU" onchange="autocompletarSKU()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2.5 font-mono font-bold">
-            <option value="PROD-001">PROD-001 - Perfil Perimetral Aluminio (Blanco)</option>
-            <option value="PROD-002">PROD-002 - Guía Marco Superior 3m</option>
-            <option value="PROD-003">PROD-003 - Junquillo Vidrio 6mm</option>
-            <option value="PROD-004">PROD-004 - Escuadra de Extrusión Reforzada</option>
-            <option value="PROD-005">PROD-005 - Bisagra Reforzada Aluminio Negro</option>
-            <option value="PROD-006">PROD-006 - Tirador Tubulular 40cm</option>
-            <option value="PROD-007">PROD-007 - Felpa Sellado Cepillo 7x6mm</option>
-            <option value="PROD-008">PROD-008 - Felpa Sellado Cepillo 7x10mm</option>
-            <option value="OTRO">Otro Código Personalizado...</option>
-          </select>
-        </div>
-
-        <div id="customSKUContainer" class="hidden">
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Código SKU Personalizado</label>
-          <input type="text" id="customSKU" placeholder="Ej: PROD-009" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2 font-mono">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción del Material</label>
-          <input type="text" id="itemDesc" value="Perfil Perimetral Aluminio (Blanco)" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2">
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Unidad</label>
-            <select id="itemUnidad" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2">
-              <option value="Unidades">Unidades</option>
-              <option value="Barras (6m)">Barras (6m)</option>
-              <option value="Metros">Metros</option>
-              <option value="Cajas">Cajas</option>
-              <option value="Kilos">Kilos</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Cantidad (+/-)</label>
-            <input type="number" id="itemCant" value="50" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2 font-bold text-sky-600">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Observaciones / Lote / Proyecto</label>
-          <input type="text" id="itemObs" placeholder="Ej: Lote #884 - Envío Contenedor A" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2">
-        </div>
-
-        <button onclick="agregarItem()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-lg shadow flex items-center justify-center gap-2 text-sm">
-          <i class="fa-solid fa-plus"></i> Agregar a la Plantilla
-        </button>
-      </div>
-    </section>
-
-    <!-- LISTA DE ARTÍCULOS AGREGADOS -->
-    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-      <h2 class="text-sm font-bold uppercase text-slate-500 tracking-wider mb-3 flex items-center justify-between">
-        <span><i class="fa-solid fa-list-check text-sky-600"></i> Artículos en la Guía</span>
-        <span id="totalItemsBadge" class="bg-sky-100 text-sky-800 text-xs px-2 py-0.5 rounded-full font-bold">1 Ítem</span>
-      </h2>
-
-      <div id="listaArticulos" class="divide-y divide-slate-100">
-        <!-- Ítems dinámicos -->
-      </div>
-    </section>
-
-    <!-- FIRMA DIGITAL MÓVIL -->
-    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-2">
-      <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold uppercase text-slate-500 tracking-wider">
-          <i class="fa-solid fa-signature text-sky-600"></i> Firma del Encargado
-        </h2>
-        <button onclick="limpiarFirma()" class="text-xs text-rose-500 hover:underline">Limpiar Firma</button>
-      </div>
-      <div class="border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 touch-none">
-        <canvas id="canvasFirma" class="w-full h-28 cursor-crosshair"></canvas>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- PLANTILLA A4 OCULTA PARA EL PDF -->
-  <div class="overflow-hidden h-0 w-0">
-    <div id="pdf-template">
-      
-      <!-- CABECERA -->
-      <div class="flex justify-between items-start pb-4 border-b-2 border-sky-600 mb-6">
-        <div>
-          <h1 class="text-3xl font-black text-slate-900 tracking-wider">ALUMAX JT</h1>
-          <p class="text-xs text-slate-500 uppercase tracking-widest font-semibold mt-1">Control Interno de Inventario & Envíos Internacionales</p>
-        </div>
-        <div class="text-right">
-          <h2 class="text-xl font-bold text-sky-600 uppercase tracking-tight">Reporte de Movimiento</h2>
-          <p class="text-xs font-mono text-slate-600 mt-1">N° Folio: <span id="pdf-folio" class="font-bold text-slate-900">COL-MOV-2026-089</span></p>
-          <p class="text-xs font-mono text-slate-600">Fecha Operación: <span id="pdf-fecha" class="font-bold text-slate-900">--/--/----</span></p>
-        </div>
-      </div>
-
-      <!-- TIPO MOVIMIENTO & BADGES -->
-      <div class="flex justify-between items-center p-3 bg-slate-50 border border-slate-200 rounded-lg mb-6">
-        <div class="flex items-center gap-3">
-          <span id="pdf-tipo-badge" class="px-3 py-1 bg-emerald-600 text-white font-bold text-xs rounded uppercase tracking-wider">
-            ✓ ENTRADA (RECEPCIÓN)
-          </span>
-        </div>
-        <div class="text-xs text-slate-600">
-          Sede Origen/Destino: <strong class="text-slate-800">Bodega Colombia</strong>
-        </div>
-      </div>
-
-      <!-- BLOQUE DE INFORMACIÓN METADATOS -->
-      <div class="grid grid-cols-2 gap-4 text-xs mb-6">
-        <div class="p-3 border border-slate-200 rounded-lg bg-white">
-          <h3 class="font-bold text-sky-600 border-b border-slate-100 pb-1 mb-2 uppercase tracking-wider">Datos del Encargado (Colombia)</h3>
-          <p class="mb-1"><span class="text-slate-500">Operador / Bodeguero:</span> <strong id="pdf-operador" class="text-slate-900">Carlos Mendoza</strong></p>
-          <p><span class="text-slate-500">Ubicación Bodega:</span> <strong class="text-slate-900">Planta Principal (Colombia)</strong></p>
-        </div>
-        <div class="p-3 border border-slate-200 rounded-lg bg-white">
-          <h3 class="font-bold text-sky-600 border-b border-slate-100 pb-1 mb-2 uppercase tracking-wider">Sincronización con España</h3>
-          <p class="mb-1"><span class="text-slate-500">Estado Registro App:</span> <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">Pendiente Carga en España</span></p>
-          <p><span class="text-slate-500">Responsable Registro:</span> <strong class="text-slate-900">Administración España</strong></p>
-        </div>
-      </div>
-
-      <!-- TABLA DE ARTÍCULOS -->
-      <table class="w-full text-xs text-left mb-6 border-collapse">
-        <thead>
-          <tr class="bg-slate-900 text-white uppercase font-bold tracking-wider">
-            <th class="p-2.5 border border-slate-900 text-center w-28">Código SKU</th>
-            <th class="p-2.5 border border-slate-900">Descripción del Artículo</th>
-            <th class="p-2.5 border border-slate-900 text-center w-24">Unidad</th>
-            <th class="p-2.5 border border-slate-900 text-right w-28">Movimiento (+/-)</th>
-            <th class="p-2.5 border border-slate-900 w-44">Observaciones / Lote</th>
-          </tr>
-        </thead>
-        <tbody id="pdf-tabla-body">
-          <!-- Se llena dinámicamente -->
-        </tbody>
-        <tfoot>
-          <tr class="bg-slate-100 font-bold border-t-2 border-slate-900">
-            <td colspan="3" class="p-2.5 text-right uppercase tracking-wider text-slate-700">Total Unidades del Movimiento:</td>
-            <td id="pdf-total-cant" class="p-2.5 text-right font-mono text-sm text-sky-700">0</td>
-            <td></td>
-          </tr>
-        </tfoot>
-      </table>
-
-      <!-- INSTRUCCIONES BODEGA -->
-      <div class="p-3 border border-slate-200 rounded-lg bg-slate-50 text-xs mb-8">
-        <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-1">Notas para la carga de inventario:</h4>
-        <p class="text-slate-600">Este documento certifica el movimiento físico de mercancía en la bodega de Colombia. Al recibir este reporte por correo electrónico, el administrador en España debe introducir los códigos SKU y cantidades en la App de Bodega para mantener sincronizado el stock.</p>
-      </div>
-
-      <!-- FIRMAS -->
-      <div class="grid grid-cols-2 gap-8 pt-6 border-t border-slate-200 mt-auto">
-        <div class="text-center">
-          <div class="h-16 flex items-end justify-center mb-1">
-            <img id="pdf-firma-img" class="max-h-16 object-contain hidden" />
-            <div id="pdf-firma-placeholder" class="text-slate-300 italic text-xs">Sin Firma Digital</div>
-          </div>
-          <div class="border-t border-slate-400 pt-1 font-bold text-xs text-slate-800">Encargado Despacho (Colombia)</div>
-          <div class="text-slate-400 text-[10px]">Firma & Verificación Física</div>
-        </div>
-        <div class="text-center">
-          <div class="h-16 flex items-center justify-center mb-1">
-            <div class="w-6 h-6 border-2 border-slate-300 rounded flex items-center justify-center text-slate-300 text-xs">
-              ☐
-            </div>
-          </div>
-          <div class="border-t border-slate-400 pt-1 font-bold text-xs text-slate-800">Cargado en App (España)</div>
-          <div class="text-slate-400 text-[10px]">Verificación Registro de Inventario</div>
-        </div>
-      </div>
-
-    </div>
+<!-- ACCESO -->
+<div id="login">
+  <div class="card">
+    <div class="logo" style="font-size:26px">ALUMAX JT</div>
+    <div class="sub" style="color:var(--mut);margin-bottom:16px">Movimientos de bodega · Colombia ➔ España</div>
+    <form id="loginForm" autocomplete="on">
+      <label for="u">Usuario de la bodega</label><input id="u" autocomplete="username" required>
+      <div style="height:10px"></div>
+      <label for="p">Contraseña</label><input id="p" type="password" autocomplete="current-password" required>
+      <div class="err" id="loginErr"></div>
+      <button class="btn" style="width:100%;margin-top:6px" id="loginBtn">Entrar</button>
+    </form>
   </div>
+</div>
 
-  <script>
-    // Inicializar Fecha
-    document.getElementById('fechaOp').valueAsDate = new Date();
+<!-- APP -->
+<div id="app" class="hidden">
+<header><div class="bar">
+  <div><div class="logo">ALUMAX JT</div><div class="sub">Movimientos de bodega · Colombia ➔ España</div></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn ok" id="btnPdf">⬇ Descargar PDF</button>
+    <button class="btn ghost small" id="btnSalir" title="Cerrar sesión">Salir</button>
+  </div>
+</div></header>
 
-    // Estado global de productos
-    let productos = [
-      { sku: 'PROD-001', desc: 'Perfil Perimetral Aluminio (Blanco)', unidad: 'Barras (6m)', cant: 50, obs: 'Lote #884 - Envío Contenedor A' },
-      { sku: 'PROD-002', desc: 'Guía Marco Superior 3m', unidad: 'Unidades', cant: 20, obs: 'Recepción Proveedor' }
-    ];
+<main>
+  <section class="card">
+    <h2>Datos operativos</h2>
+    <div class="seg" id="seg" style="margin-bottom:12px">
+      <button class="on in" data-t="ENTRADA (RECEPCIÓN)">↓ Entrada (recepción)</button>
+      <button data-t="SALIDA (DESPACHO)">↑ Salida (despacho)</button>
+    </div>
+    <div class="g2">
+      <div class="folio"><small>N° Folio / Guía</small><b class="mono" id="folioTxt">Se asigna al descargar</b></div>
+      <div><label for="fecha">Fecha de operación</label><input type="date" id="fecha"></div>
+    </div>
+    <div style="margin-top:12px"><label for="operador">Encargado (Colombia)</label><input id="operador" placeholder="Nombre de quien despacha / recibe"></div>
+  </section>
 
-    // Funciones de Formulario
-    function autocompletarSKU() {
-      const select = document.getElementById('selectSKU');
-      const customContainer = document.getElementById('customSKUContainer');
-      const descInput = document.getElementById('itemDesc');
+  <section class="card">
+    <h2>Añadir artículo <button class="link" id="toggleManual">Producto que no está en la lista</button></h2>
 
-      if (select.value === 'OTRO') {
-        customContainer.classList.remove('hidden');
-        descInput.value = '';
-      } else {
-        customContainer.classList.add('hidden');
-        const text = select.options[select.selectedIndex].text;
-        descInput.value = text.split(' - ')[1] || text;
-      }
+    <div id="boxLista">
+      <label for="buscar">Buscar producto (código o nombre)</label>
+      <div class="combo">
+        <input id="buscar" placeholder="Ej: tubo 1/2, codo, rayo café…" autocomplete="off">
+        <div class="list hidden" id="lista"></div>
+      </div>
+      <div class="sel hidden" id="sel"></div>
+      <div id="estadoCat" style="font-size:12px;color:var(--mut);margin-top:6px"></div>
+    </div>
+
+    <div id="boxManual" class="hidden">
+      <div class="g2"><div><label>Código</label><input id="mCode" class="mono" placeholder="Ej: NUEVO-01"></div>
+      <div><label>Descripción</label><input id="mName"></div></div>
+      <div class="g2" style="margin-top:12px"><div><label>Precio de compra</label><input id="mBuy" type="number" min="0" step="any" inputmode="decimal"></div>
+      <div><label>Precio de venta (+IVA)</label><input id="mSell" type="number" min="0" step="any" inputmode="decimal"></div></div>
+    </div>
+
+    <div class="g2 keep" style="margin-top:12px">
+      <div><label for="unidad">Unidad</label>
+        <select id="unidad"><option>Unidades</option><option>Paquetes</option></select></div>
+      <div><label for="cant">Cantidad</label><input id="cant" type="number" min="0" step="any" inputmode="decimal" value="1" style="font-weight:800"></div>
+    </div>
+    <div style="margin-top:12px"><label for="obs">Observaciones / Lote / Proyecto</label><input id="obs" placeholder="Ej: Lote #884 - Envío Contenedor A"></div>
+    <button class="btn" style="width:100%;margin-top:14px" id="btnAdd">＋ Agregar a la plantilla</button>
+  </section>
+
+  <section class="card">
+    <h2>Artículos en la guía <span class="badge" id="badge">0 ítems</span></h2>
+    <div id="items"></div>
+    <div class="tot" id="totales"></div>
+  </section>
+
+  <section class="card">
+    <h2>Firma del encargado <button class="link" id="limpiar" style="color:var(--bad)">Limpiar firma</button></h2>
+    <div class="sigbox"><canvas id="firma"></canvas></div>
+  </section>
+
+  <button class="btn ghost" id="btnNueva">Empezar una guía nueva</button>
+</main>
+</div>
+
+<div id="toast"></div>
+
+<!-- PLANTILLA PDF (A4 horizontal) -->
+<div id="pdf-wrap"><div id="pdf">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0284c7;padding-bottom:12px;margin-bottom:14px">
+    <div><div style="font-size:30px;font-weight:900;letter-spacing:.06em">ALUMAX JT</div>
+      <div style="font-size:10px;color:#64748b;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-top:2px">Control interno de inventario & envíos internacionales</div></div>
+    <div style="text-align:right"><div style="font-size:19px;font-weight:800;color:#0284c7;text-transform:uppercase">Reporte de movimiento</div>
+      <div class="m" style="margin-top:4px">N° Folio: <b id="p-folio" style="font-size:14px"></b></div>
+      <div class="m">Fecha operación: <b id="p-fecha"></b></div></div>
+  </div>
+  <div style="display:flex;gap:12px;margin-bottom:14px">
+    <div style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px"><div style="font-weight:800;color:#0284c7;text-transform:uppercase;font-size:10px;letter-spacing:.06em;margin-bottom:4px">Movimiento</div>
+      <span id="p-tipo" style="display:inline-block;color:#fff;font-weight:800;padding:3px 10px;border-radius:5px"></span>
+      <div style="margin-top:6px;color:#64748b">Sede: <b style="color:#0f172a">Bodega Colombia · Planta principal</b></div></div>
+    <div style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px"><div style="font-weight:800;color:#0284c7;text-transform:uppercase;font-size:10px;letter-spacing:.06em;margin-bottom:4px">Encargado (Colombia)</div>
+      <div><b id="p-operador" style="font-size:13px"></b></div>
+      <div style="margin-top:6px;color:#64748b">Registro en España: <b style="background:#fef3c7;color:#92400e;padding:1px 7px;border-radius:4px">Pendiente de carga</b></div></div>
+  </div>
+  <table>
+    <thead><tr><th style="width:92px">Código</th><th>Descripción</th><th class="c" style="width:70px">Unidad</th><th class="r" style="width:70px">Cantidad</th>
+      <th class="r" style="width:92px">P. compra</th><th class="r" style="width:92px">P. venta +IVA</th><th class="r" style="width:105px">Total compra</th><th class="r" style="width:105px">Total venta</th><th style="width:170px">Observaciones</th></tr></thead>
+    <tbody id="p-body"></tbody>
+    <tfoot><tr style="background:#f1f5f9;font-weight:800"><td colspan="3" class="r" style="text-transform:uppercase">Totales del movimiento</td><td class="r m" id="p-qty"></td><td></td><td></td><td class="r m" id="p-tbuy"></td><td class="r m" id="p-tsell"></td><td></td></tr></tfoot>
+  </table>
+  <div style="margin-top:14px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:8px;padding:9px 12px;color:#475569;font-size:10.5px">
+    <b style="color:#0f172a;text-transform:uppercase">Notas para la carga de inventario:</b> Este documento certifica el movimiento físico de mercancía en la bodega de Colombia. El administrador en España debe registrar los códigos y cantidades en la App de Bodega para mantener el stock sincronizado. Los precios son referenciales al momento de emitir el folio.</div>
+  <div style="display:flex;gap:60px;margin-top:22px;padding-top:10px">
+    <div style="flex:1;text-align:center"><div style="height:60px;display:flex;align-items:flex-end;justify-content:center"><img id="p-firma" style="max-height:58px" class="hidden"><span id="p-nofirma" style="color:#cbd5e1;font-style:italic">Sin firma digital</span></div>
+      <div style="border-top:1px solid #94a3b8;padding-top:4px;font-weight:800">Encargado Despacho (Colombia)</div><div style="color:#94a3b8;font-size:9.5px">Firma & verificación física</div></div>
+    <div style="flex:1;text-align:center"><div style="height:60px;display:flex;align-items:center;justify-content:center"><span style="width:22px;height:22px;border:2px solid #cbd5e1;border-radius:4px;display:inline-block"></span></div>
+      <div style="border-top:1px solid #94a3b8;padding-top:4px;font-weight:800">Cargado en App (España)</div><div style="color:#94a3b8;font-size:9.5px">Verificación de registro de inventario</div></div>
+  </div>
+</div></div>
+
+<script>
+const SB = "https://apjxqtxxyctytybkkduc.supabase.co";
+const KEY = "sb_publishable_zHSPfLOo02j4C3SIpxN7oA_m3YdnHcx";
+const $ = (id) => document.getElementById(id);
+const money = (n) => "$ " + Math.round(Number(n) || 0).toLocaleString("es-CO");
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const norm = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const store = { get(k) { try { return JSON.parse(sessionStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const pref = { get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+let session = store.get("alumax_envios_session");   // {token, username}
+let catalogo = [];                                    // [{code,name,buy,sell}]
+let items = [];
+let tipo = "ENTRADA (RECEPCIÓN)";
+let seleccion = null;
+let folio = "";            // folio ya emitido para esta guía
+let firmaDoc = "";         // huella de lo emitido
+let manual = false;
+
+function toast(t) { const e = $("toast"); e.textContent = t; e.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("on"), 3500); }
+
+async function rpc(fn, body) {
+  const r = await fetch(SB + "/rest/v1/rpc/" + fn, { method: "POST", headers: { apikey: KEY, Authorization: "Bearer " + KEY, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const txt = await r.text(); let j = null; try { j = JSON.parse(txt); } catch (e) {}
+  if (!r.ok) { const m = (j && (j.message || j.hint)) || txt || r.statusText; const err = new Error(m); err.status = r.status; throw err; }
+  return j;
+}
+
+/* ---------- acceso ---------- */
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault(); $("loginErr").textContent = ""; $("loginBtn").disabled = true;
+  try {
+    const r = await rpc("app_login", { p_username: $("u").value.trim(), p_password: $("p").value });
+    if (!r || !r.token) { $("loginErr").textContent = "Usuario o contraseña incorrectos."; return; }
+    session = { token: r.token, username: r.username }; store.set("alumax_envios_session", session); $("p").value = "";
+    await entrar();
+  } catch (err) { $("loginErr").textContent = "No se pudo entrar: " + err.message; }
+  finally { $("loginBtn").disabled = false; }
+});
+$("btnSalir").onclick = () => { try { sessionStorage.removeItem("alumax_envios_session"); } catch (e) {} location.reload(); };
+
+async function entrar() {
+  $("login").classList.add("hidden"); $("app").classList.remove("hidden");
+  $("estadoCat").textContent = "Cargando productos de la bodega…";
+  try {
+    catalogo = await rpc("envios_catalogo", { p_token: session.token });
+    $("estadoCat").textContent = catalogo.length.toLocaleString("es-CO") + " productos de la bodega disponibles";
+  } catch (err) {
+    if (/sesi[oó]n|expir/i.test(err.message)) { toast("Tu sesión expiró. Entra de nuevo."); $("btnSalir").click(); return; }
+    $("estadoCat").innerHTML = "<span style='color:var(--bad)'>No se pudo cargar el catálogo (" + esc(err.message) + "). Puedes usar «Producto que no está en la lista».</span>";
+  }
+}
+
+/* ---------- datos ---------- */
+$("fecha").valueAsDate = new Date();
+$("operador").value = pref.get("alumax_operador");
+$("operador").addEventListener("input", () => pref.set("alumax_operador", $("operador").value));
+document.querySelectorAll("#seg button").forEach((b) => b.addEventListener("click", () => {
+  tipo = b.dataset.t;
+  document.querySelectorAll("#seg button").forEach((x) => x.className = "");
+  b.className = "on " + (tipo.startsWith("ENTRADA") ? "in" : "out"); render();
+}));
+
+/* ---------- buscador de productos ---------- */
+let act = -1, resultados = [];
+function buscar() {
+  const q = norm($("buscar").value).split(/\s+/).filter(Boolean);
+  if (!q.length) { resultados = catalogo.slice(0, 40); }
+  else resultados = catalogo.filter((p) => { const h = norm(p.code + " " + p.name); return q.every((t) => h.includes(t)); });
+  const total = resultados.length; const vis = resultados.slice(0, 40); resultados = vis; act = vis.length ? 0 : -1;
+  const L = $("lista");
+  L.innerHTML = vis.map((p, i) => `<div class="opt ${i === 0 ? "act" : ""}" data-i="${i}"><span class="c">${esc(p.code)}</span><span>${esc(p.name)}</span><span class="p">${money(p.sell)}</span></div>`).join("")
+    + (total > 40 ? `<div class="opt" style="color:var(--mut);cursor:default">…y ${total - 40} más. Sigue escribiendo para filtrar.</div>` : "")
+    + (!total ? `<div class="opt" style="color:var(--mut);cursor:default">Sin resultados</div>` : "");
+  L.classList.remove("hidden");
+}
+function elegir(p) {
+  seleccion = p; $("lista").classList.add("hidden"); $("buscar").value = "";
+  const s = $("sel"); s.classList.remove("hidden");
+  s.innerHTML = `<b class="mono" style="color:var(--brand-d)">${esc(p.code)}</b> · ${esc(p.name)}<div class="prices"><span>Compra: <b>${money(p.buy)}</b></span><span>Venta +IVA: <b>${money(p.sell)}</b></span></div>`;
+  $("cant").focus(); $("cant").select();
+}
+$("buscar").addEventListener("input", buscar);
+$("buscar").addEventListener("focus", buscar);
+$("buscar").addEventListener("keydown", (e) => {
+  const opts = [...$("lista").querySelectorAll(".opt[data-i]")]; if (!opts.length) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); act = (act + (e.key === "ArrowDown" ? 1 : -1) + opts.length) % opts.length; opts.forEach((o, i) => o.classList.toggle("act", i === act)); opts[act].scrollIntoView({ block: "nearest" }); }
+  else if (e.key === "Enter") { e.preventDefault(); if (resultados[act]) elegir(resultados[act]); }
+  else if (e.key === "Escape") $("lista").classList.add("hidden");
+});
+$("lista").addEventListener("mousedown", (e) => { const o = e.target.closest(".opt[data-i]"); if (o) { e.preventDefault(); elegir(resultados[+o.dataset.i]); } });
+document.addEventListener("click", (e) => { if (!e.target.closest(".combo")) $("lista").classList.add("hidden"); });
+$("toggleManual").onclick = () => { manual = !manual; $("boxLista").classList.toggle("hidden", manual); $("boxManual").classList.toggle("hidden", !manual); $("toggleManual").textContent = manual ? "Volver a la lista de la bodega" : "Producto que no está en la lista"; };
+
+/* ---------- artículos ---------- */
+$("btnAdd").onclick = () => {
+  let p;
+  if (manual) {
+    p = { code: $("mCode").value.trim(), name: $("mName").value.trim(), buy: parseFloat($("mBuy").value) || 0, sell: parseFloat($("mSell").value) || 0 };
+  } else p = seleccion;
+  const qty = parseFloat($("cant").value);
+  if (!p || !p.code || !p.name) return toast("Elige un producto de la lista (o completa código y descripción).");
+  if (!(qty > 0)) return toast("Escribe una cantidad mayor que 0.");
+  items.push({ code: p.code, name: p.name, buy: Number(p.buy) || 0, sell: Number(p.sell) || 0, unit: $("unidad").value, qty, obs: $("obs").value.trim() });
+  $("obs").value = ""; $("cant").value = 1; seleccion = null; $("sel").classList.add("hidden"); if (manual) ["mCode", "mName", "mBuy", "mSell"].forEach((i) => $(i).value = "");
+  render(); toast("Agregado ✓");
+};
+function quitar(i) { items.splice(i, 1); render(); }
+function totales() { return items.reduce((a, p) => ({ q: a.q + p.qty, b: a.b + p.qty * p.buy, s: a.s + p.qty * p.sell }), { q: 0, b: 0, s: 0 }); }
+function render() {
+  const sg = tipo.startsWith("ENTRADA") ? "+" : "−";
+  $("badge").textContent = items.length + (items.length === 1 ? " ítem" : " ítems");
+  $("items").innerHTML = items.length ? items.map((p, i) => `<div class="row"><div><div class="t"><span class="mono" style="font-size:12px;color:var(--brand-d)">${esc(p.code)}</span> ${esc(p.name)}</div>
+    <div class="m">${esc(p.unit)} · compra ${money(p.buy)} · venta ${money(p.sell)}${p.obs ? " · " + esc(p.obs) : ""}</div></div>
+    <div style="display:flex;gap:8px;align-items:flex-start"><span class="qty">${sg}${p.qty}</span><button class="x" data-i="${i}" title="Quitar">🗑</button></div></div>`).join("") : `<div class="empty">Aún no has agregado artículos.</div>`;
+  const t = totales();
+  $("totales").innerHTML = items.length ? `<span>Unidades: <b>${t.q}</b></span><span>Total compra: <b>${money(t.b)}</b></span><span>Total venta: <b>${money(t.s)}</b></span>` : "";
+  $("folioTxt").textContent = folio && firma_ok() ? folio : "Se asigna al descargar";
+  store.set("alumax_envios_draft", { items, tipo });
+}
+$("items").addEventListener("click", (e) => { const b = e.target.closest(".x"); if (b) quitar(+b.dataset.i); });
+function huella() { return JSON.stringify([tipo, $("fecha").value, $("operador").value, items]); }
+function firma_ok() { return firmaDoc === huella(); }
+
+/* ---------- firma ---------- */
+const cv = $("firma"), cx = cv.getContext("2d"); let dib = false;
+function rs() { const w = cv.clientWidth || 600; cv.width = w; cv.height = 112; cx.lineWidth = 2; cx.lineCap = "round"; cx.strokeStyle = "#0f172a"; }
+addEventListener("resize", rs); setTimeout(rs, 150);
+const gp = (e) => { const r = cv.getBoundingClientRect(), t = e.touches ? e.touches[0] : e; return { x: t.clientX - r.left, y: t.clientY - r.top }; };
+cv.addEventListener("mousedown", (e) => { dib = true; cx.beginPath(); const p = gp(e); cx.moveTo(p.x, p.y); });
+cv.addEventListener("mousemove", (e) => { if (!dib) return; const p = gp(e); cx.lineTo(p.x, p.y); cx.stroke(); });
+addEventListener("mouseup", () => dib = false);
+cv.addEventListener("touchstart", (e) => { dib = true; cx.beginPath(); const p = gp(e); cx.moveTo(p.x, p.y); e.preventDefault(); }, { passive: false });
+cv.addEventListener("touchmove", (e) => { if (!dib) return; const p = gp(e); cx.lineTo(p.x, p.y); cx.stroke(); e.preventDefault(); }, { passive: false });
+cv.addEventListener("touchend", () => dib = false);
+$("limpiar").onclick = () => cx.clearRect(0, 0, cv.width, cv.height);
+const hayFirma = () => new Uint32Array(cx.getImageData(0, 0, cv.width, cv.height).data.buffer).some((c) => c !== 0);
+
+/* ---------- PDF + folio automático ---------- */
+$("btnPdf").onclick = async () => {
+  if (!items.length) return toast("Agrega al menos un artículo.");
+  if (!$("operador").value.trim()) return toast("Escribe el nombre del encargado.");
+  const b = $("btnPdf"); b.disabled = true; b.textContent = "Generando…";
+  try {
+    if (!(folio && firma_ok())) {                       // guía nueva o modificada → folio nuevo
+      folio = await rpc("envios_emitir", { p_token: session.token, p_tipo: tipo, p_datos: { fecha: $("fecha").value, encargado: $("operador").value.trim(), items } });
+      firmaDoc = huella();
     }
+    render();
+    const [y, m, d] = ($("fecha").value || new Date().toISOString().slice(0, 10)).split("-");
+    $("p-folio").textContent = folio; $("p-fecha").textContent = `${d}/${m}/${y}`; $("p-operador").textContent = $("operador").value.trim();
+    const tp = $("p-tipo"); tp.textContent = tipo.startsWith("ENTRADA") ? "✓ " + tipo : "▲ " + tipo; tp.style.background = tipo.startsWith("ENTRADA") ? "#059669" : "#0284c7";
+    const sg = tipo.startsWith("ENTRADA") ? "+" : "−";
+    $("p-body").innerHTML = items.map((p, i) => `<tr style="background:${i % 2 ? "#f8fafc" : "#fff"}"><td class="m" style="font-weight:800;color:#075985">${esc(p.code)}</td><td style="font-weight:600">${esc(p.name)}</td><td class="c">${esc(p.unit)}</td>
+      <td class="r m" style="font-weight:800">${sg}${p.qty}</td><td class="r m">${money(p.buy)}</td><td class="r m">${money(p.sell)}</td><td class="r m">${money(p.qty * p.buy)}</td><td class="r m">${money(p.qty * p.sell)}</td><td style="color:#64748b">${esc(p.obs) || "-"}</td></tr>`).join("");
+    const t = totales(); $("p-qty").textContent = sg + t.q; $("p-tbuy").textContent = money(t.b); $("p-tsell").textContent = money(t.s);
+    const fi = $("p-firma"), nf = $("p-nofirma");
+    if (hayFirma()) { fi.src = cv.toDataURL(); fi.classList.remove("hidden"); nf.classList.add("hidden"); } else { fi.classList.add("hidden"); nf.classList.remove("hidden"); }
+    scrollTo(0, 0);
+    await html2pdf().set({ margin: 0, filename: folio + ".pdf", image: { type: "jpeg", quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 }, jsPDF: { unit: "mm", format: "a4", orientation: "landscape" }, pagebreak: { mode: ["css", "legacy"] } }).from($("pdf")).save();
+    toast("Guía " + folio + " descargada ✓");
+  } catch (err) {
+    if (/sesi[oó]n|expir/i.test(err.message)) { toast("Tu sesión expiró. Entra de nuevo."); setTimeout(() => $("btnSalir").click(), 1500); }
+    else toast("No se pudo generar: " + err.message.slice(0, 120));
+  } finally { b.disabled = false; b.textContent = "⬇ Descargar PDF"; }
+};
+$("btnNueva").onclick = () => { if (items.length && !confirm("¿Borrar los artículos y empezar una guía nueva?")) return; items = []; folio = ""; firmaDoc = ""; cx.clearRect(0, 0, cv.width, cv.height); render(); };
+["fecha", "operador"].forEach((i) => $(i).addEventListener("input", render));
 
-    function agregarItem() {
-      const selectSKU = document.getElementById('selectSKU').value;
-      const customSKU = document.getElementById('customSKU').value;
-      const sku = selectSKU === 'OTRO' ? customSKU : selectSKU;
-      
-      const desc = document.getElementById('itemDesc').value;
-      const unidad = document.getElementById('itemUnidad').value;
-      const cant = parseFloat(document.getElementById('itemCant').value) || 0;
-      const obs = document.getElementById('itemObs').value;
-
-      if (!sku || !desc || cant <= 0) {
-        alert('Por favor complete el SKU, la descripción y una cantidad válida.');
-        return;
-      }
-
-      productos.push({ sku, desc, unidad, cant, obs });
-      
-      // Limpiar inputs
-      document.getElementById('itemObs').value = '';
-      renderLista();
-    }
-
-    function eliminarItem(index) {
-      productos.splice(index, 1);
-      renderLista();
-    }
-
-    function renderLista() {
-      const contenedor = document.getElementById('listaArticulos');
-      document.getElementById('totalItemsBadge').innerText = `${productos.length} Ítems`;
-      contenedor.innerHTML = '';
-
-      productos.forEach((p, idx) => {
-        contenedor.innerHTML += `
-          <div class="py-2.5 flex justify-between items-center text-sm">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded text-xs border border-sky-200">${p.sku}</span>
-                <span class="font-medium text-slate-800">${p.desc}</span>
-              </div>
-              <div class="text-xs text-slate-400 mt-0.5">
-                ${p.unidad} | ${p.obs ? p.obs : 'Sin observaciones'}
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="font-mono font-bold text-slate-900">${p.cant}</span>
-              <button onclick="eliminarItem(${idx})" class="text-rose-400 hover:text-rose-600 p-1">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    // Canvas de Firma
-    const canvas = document.getElementById('canvasFirma');
-    const ctx = canvas.getContext('2d');
-    let firmando = false;
-
-    function resizeCanvas() {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = 112;
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = '#0f172a';
-    }
-
-    window.addEventListener('resize', resizeCanvas);
-    setTimeout(resizeCanvas, 100);
-
-    function getPos(e) {
-      const rect = canvas.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      return { x: clientX - rect.left, y: clientY - rect.top };
-    }
-
-    canvas.addEventListener('mousedown', (e) => { firmando = true; ctx.beginPath(); const pos = getPos(e); ctx.moveTo(pos.x, pos.y); });
-    canvas.addEventListener('mousemove', (e) => { if(!firmando) return; const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); });
-    canvas.addEventListener('mouseup', () => firmando = false);
-
-    canvas.addEventListener('touchstart', (e) => { firmando = true; ctx.beginPath(); const pos = getPos(e); ctx.moveTo(pos.x, pos.y); e.preventDefault(); });
-    canvas.addEventListener('touchmove', (e) => { if(!firmando) return; const pos = getPos(e); ctx.lineTo(pos.x, pos.y); ctx.stroke(); e.preventDefault(); });
-    canvas.addEventListener('touchend', () => firmando = false);
-
-    function limpiarFirma() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    function tieneFirma() {
-      const pixelBuffer = new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
-      return pixelBuffer.some(color => color !== 0);
-    }
-
-    // Sincronizar UI con Plantilla PDF
-    function actualizarVista() {
-      document.getElementById('pdf-folio').innerText = document.getElementById('numFolio').value;
-      
-      const fechaVal = document.getElementById('fechaOp').value;
-      if (fechaVal) {
-        const [y, m, d] = fechaVal.split('-');
-        document.getElementById('pdf-fecha').innerText = `${d}/${m}/${y}`;
-      }
-
-      document.getElementById('pdf-operador').innerText = document.getElementById('operador').value;
-      
-      const tipo = document.getElementById('tipoMovimiento').value;
-      const badge = document.getElementById('pdf-tipo-badge');
-      if (tipo.includes('ENTRADA')) {
-        badge.innerText = '✓ ENTRADA (RECEPCIÓN)';
-        badge.className = 'px-3 py-1 bg-emerald-600 text-white font-bold text-xs rounded uppercase tracking-wider';
-      } else {
-        badge.innerText = '▲ SALIDA (DESPACHO)';
-        badge.className = 'px-3 py-1 bg-sky-600 text-white font-bold text-xs rounded uppercase tracking-wider';
-      }
-    }
-
-    // GENERAR Y DESCARGAR PDF PERFECTO A4
-    function generarPDF() {
-      actualizarVista();
-
-      // Rellenar Tabla PDF
-      const pdfBody = document.getElementById('pdf-tabla-body');
-      pdfBody.innerHTML = '';
-      let sumaTotal = 0;
-
-      productos.forEach((p, i) => {
-        sumaTotal += p.cant;
-        const bgClass = i % 2 === 0 ? 'bg-white' : 'bg-slate-50';
-        pdfBody.innerHTML += `
-          <tr class="${bgClass} border-b border-slate-200">
-            <td class="p-2.5 border-r border-slate-200 text-center font-mono font-bold text-sky-700">${p.sku}</td>
-            <td class="p-2.5 border-r border-slate-200 font-medium text-slate-800">${p.desc}</td>
-            <td class="p-2.5 border-r border-slate-200 text-center text-slate-600">${p.unidad}</td>
-            <td class="p-2.5 border-r border-slate-200 text-right font-mono font-bold text-slate-900">${p.cant}</td>
-            <td class="p-2.5 text-slate-500">${p.obs || '-'}</td>
-          </tr>
-        `;
-      });
-
-      document.getElementById('pdf-total-cant').innerText = sumaTotal;
-
-      // Estampar Firma
-      const firmaImg = document.getElementById('pdf-firma-img');
-      const firmaPlaceholder = document.getElementById('pdf-firma-placeholder');
-      if (tieneFirma()) {
-        firmaImg.src = canvas.toDataURL();
-        firmaImg.classList.remove('hidden');
-        firmaPlaceholder.classList.add('hidden');
-      } else {
-        firmaImg.classList.add('hidden');
-        firmaPlaceholder.classList.remove('hidden');
-      }
-
-      // IMPORTANTE: Forzar scroll arriba para corregir corte de página
-      window.scrollTo(0, 0);
-
-      const element = document.getElementById('pdf-template');
-      const filename = `${document.getElementById('numFolio').value || 'Reporte_Bodega'}.pdf`;
-
-      const opt = {
-        margin: 0,
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true,
-          scrollY: 0,
-          scrollX: 0
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save();
-    }
-
-    // Inicializar primera carga
-    renderLista();
-  </script>
+const draft = store.get("alumax_envios_draft"); if (draft && Array.isArray(draft.items)) { items = draft.items; }
+render();
+if (session && session.token) entrar();
+</script>
 </body>
 </html>
